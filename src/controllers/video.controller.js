@@ -15,14 +15,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
     // const videos = await Video.find();
 
     const skip = (page - 1) * limit;
-    const videos = await Video.aggregate([
-        {
-            $skip: skip
-        },
-        {
-            $limit: limit
-        }
-    ]);
+    const videos = await Video.find()
     
     console.log(videos);
     
