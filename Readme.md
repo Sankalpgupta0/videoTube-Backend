@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+
+>>>>>>> 929615bf420cf84f9a4ef334b8b40cd3b0f76512
 backend of a Hybrid Platform ( Youtube + Twitter ) 
 - [Model link](https://app.eraser.io/workspace/YtPqZ1VogxGy1jzIDkzj?origin=share)
 
