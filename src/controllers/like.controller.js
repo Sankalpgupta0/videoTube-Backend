@@ -213,11 +213,11 @@ const getLikedVideos = asyncHandler(async (req, res) => {
         },
         {
             $project: {
-                _id: 0,
+                _id: 1,
                 likedVideo: {
                     _id: 1,
-                    "videoFile.url": 1,
-                    "thumbnail.url": 1,
+                    videoFile: 1,
+                    thumbnail: 1,
                     owner: 1,
                     title: 1,
                     description: 1,
@@ -228,7 +228,7 @@ const getLikedVideos = asyncHandler(async (req, res) => {
                     ownerDetails: {
                         username: 1,
                         fullName: 1,
-                        "avatar.url": 1,
+                        avatar: 1,
                     },
                 },
             },
