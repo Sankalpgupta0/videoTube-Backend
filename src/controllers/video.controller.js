@@ -8,7 +8,7 @@ import {uploadOnCloudinary} from "../utils/cloudinary.js"
 
 
 const getAllVideos = asyncHandler(async (req, res) => {
-    const { page = 1, limit = 20, query, sortBy, sortType, userId } = req.query
+    const { page = 1, limit = 40, query, sortBy, sortType, userId } = req.query
     //TODO: get all videos based on query, sort, pagination
     
     // this is a easier method but not so good method  because it will take more time to load the data if there are many records in db ... a better approach will be using aggrigation pipeline 
