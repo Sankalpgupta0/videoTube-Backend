@@ -501,6 +501,40 @@ const getWatchHistory = asyncHandler(async(req, res) => {
     )
 })
 
+const addVideoToHistory = asyncHandler(async(req, res) => {
+    const {videoId} = req.params
+    const user  = await User.findById(req.user?._id);
+
+    if(!user){
+        throw new ApiError(404, "user Not fount")
+    }
+    const watchHistoryTillNow = user.watchHistory;
+    // console.log(watchHistoryTillNow.includes(videoId));
+    if(!watchHistoryTillNow.includes(videoId)){
+        const pushVideo = await User.findByIdAndUpdate(
+            {
+                _id: req.user?._id
+            },
+            {
+                $push: {
+                    watchHistory: videoId
+                }
+            }
+        )
+    } else{
+        throw new ApiError(409, "Video already exist in history") 
+    }
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(
+            200,
+            "Video added to watch history successfully"
+        )
+    )
+})
+
 
 export {
     registerUser,
@@ -514,5 +548,6 @@ export {
     updateUserCoverImage,
     getUserChannelProfile,
     getWatchHistory,
-    getUserByUserId
+    getUserByUserId,
+    addVideoToHistory
 }
