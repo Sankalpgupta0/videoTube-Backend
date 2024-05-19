@@ -27,6 +27,7 @@ import playlistRouter from "./routes/playlist.routes.js"
 import dashboardRouter from "./routes/dashboard.routes.js"
 
 //routes declaration
+app.get("/",(req,res) => res.send("server is running"))
 app.use("/api/healthcheck", healthcheckRouter)
 app.use("/api/users", userRouter)
 app.use("/api/tweets", tweetRouter)
