@@ -42,6 +42,7 @@ const registerUser = asyncHandler( async (req, res) => {
     if (
         [fullName, email, username, password].some((field) => field?.trim() === "")
     ) {
+        res.status(400).json(new ApiError({statusCode: 400, message: "All fields are required"}))
         throw new ApiError(400, "All fields are required")
     }
 
@@ -50,11 +51,12 @@ const registerUser = asyncHandler( async (req, res) => {
     })
 
     if (existedUser) {
+        res.status(409).json(new ApiError({statusCode: 409, message: "User with email or username already exists"}))
         throw new ApiError(409, "User with email or username already exists")
     }
     //console.log(req.files);
 
-    const avatarLocalPath = req.files?.avatar[0]?.path;
+    const avatarLocalPath = null || req.files?.avatar[0]?.path ;
     //const coverImageLocalPath = req.files?.coverImage[0]?.path;
 
     let coverImageLocalPath;
@@ -62,8 +64,8 @@ const registerUser = asyncHandler( async (req, res) => {
         coverImageLocalPath = req.files.coverImage[0].path
     }
     
-
     if (!avatarLocalPath) {
+        res.status(400).json(new ApiError({statusCode: 400, message: "Avatar file is required"}))
         throw new ApiError(400, "Avatar file is required")
     }
 
@@ -71,6 +73,7 @@ const registerUser = asyncHandler( async (req, res) => {
     const coverImage = await uploadOnCloudinary(coverImageLocalPath)
 
     if (!avatar) {
+        res.status(400).json(new ApiError({statusCode: 400, message: "Avatar file is required"}))
         throw new ApiError(400, "Avatar file is required")
     }
     
@@ -89,6 +92,7 @@ const registerUser = asyncHandler( async (req, res) => {
     )
 
     if (!createdUser) {
+        res.status(500).json(new ApiResponse({statusCode: 500, message: "Something went wrong while registering the user... please try again"}))
         throw new ApiError(500, "Something went wrong while registering the user")
     }
 
@@ -98,7 +102,7 @@ const registerUser = asyncHandler( async (req, res) => {
 
 } )
 
-const loginUser = asyncHandler(async (req, res) =>{
+const loginUser = asyncHandler(async (req, res, next) =>{
     // req body -> data
     // username or email
     //find the user
@@ -110,6 +114,7 @@ const loginUser = asyncHandler(async (req, res) =>{
     // console.log(password);
 
     if (!username && !email) {
+        res.status(400).json(new ApiError({statusCode:400, message:"username or email is required"}))
         throw new ApiError(400, "username or email is required")
     }
     
@@ -124,12 +129,14 @@ const loginUser = asyncHandler(async (req, res) =>{
     })
 
     if (!user) {
-        throw new ApiError(404, "User does not exist")
+        res.status(400).json(new ApiError({statusCode:404, message:"User does not exist please register first"}))
+        throw new ApiError(404, "User does not exist please register first")
     }
 
     const isPasswordValid = await user.isPasswordCorrect(password)
 
     if (!isPasswordValid) {
+        res.status(400).json(new ApiError({statusCode:400, message:"Invalid user credentials"}))
         throw new ApiError(401, "Invalid user credentials")
     }
 
