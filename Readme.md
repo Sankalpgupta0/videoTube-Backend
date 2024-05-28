@@ -10,4 +10,4 @@ We are building a complete video hosting website similar to youtube with all the
 Project uses all standard practices like JWT, bcrypt, access tokens, refresh Tokens and many more. We have spent a lot of time in building this project and we are sure that you will learn a lot from this project.
 
 
-Deployed Link :https://video-tube-frontend.vercel.app
+Deployed Link : https://videotube-sankalp.vercel.app/
