@@ -10,5 +10,8 @@ We are building a complete video hosting website similar to youtube with all the
 Project uses all standard practices like JWT, bcrypt, access tokens, refresh Tokens and many more. We have spent a lot of time in building this project and we are sure that you will learn a lot from this project.
 
 ## *Before trying the Website* 
+### *Cold Start :* 
+I am using free service of render of after a period of inactivity render automatically spin down to conserve resources so the first request after a period of inactivity can take significantly longer, often 50 seconds or more, as the instance has to "wake up."
+
 ### make sure backend is running at https://videotube-backend-akxz.onrender.com
 Deployed Link : https://videotube-sankalp.vercel.app/
