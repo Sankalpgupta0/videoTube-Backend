@@ -100,31 +100,47 @@ const getVideoById = asyncHandler(async (req, res) => {
 })
 
 const updateVideo = asyncHandler(async (req, res) => {
+    let video;
     const { videoId } = req.params
     //TODO: update video details like title, description, thumbnail
     const {title, description} = req.body;
+    const thumb = req.body.thumbnail
     const thumbnailLocalPath = req.file?.path;
-    console.log(thumbnailLocalPath);
-    if(!thumbnailLocalPath){
-        throw new ApiError(400,"Thumbnail is required");
-    }
-    const thumbnail = await uploadOnCloudinary(thumbnailLocalPath);
-    if(!thumbnail){
-        throw new ApiError(500,"Failed to save thumbnail on cloudinary")
-    }
-    let video = await Video.findByIdAndUpdate(
-        videoId,
-        {
-            $set : {
-                thumbnail: thumbnail?.url || "", 
-                title: title || "", 
-                description: description || ""
-            }
-        },
-        {
-            new : true
+    if(thumbnailLocalPath){
+        const thumbnail = await uploadOnCloudinary(thumbnailLocalPath);
+        if(!thumbnail){
+            throw new ApiError(500,"Failed to save thumbnail on cloudinary")
         }
-    );
+        video = await Video.findByIdAndUpdate(
+            videoId,
+            {
+                $set : {
+                    thumbnail: thumbnail?.url || "", 
+                    title: title || "", 
+                    description: description || ""
+                }
+            },
+            {
+                new : true
+            }
+        );
+    }
+    if(!thumbnailLocalPath){
+        video = await Video.findByIdAndUpdate(
+            videoId,
+            {
+                $set : {
+                    thumbnail: thumb || "", 
+                    title: title || "", 
+                    description: description || ""
+                }
+            },
+            {
+                new : true
+            }
+        );
+    }
+    
 
     return res
     .status(200)
