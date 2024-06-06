@@ -56,7 +56,11 @@ const registerUser = asyncHandler( async (req, res) => {
     }
     //console.log(req.files);
 
-    const avatarLocalPath = null || req.files?.avatar[0]?.path ;
+    // const avatarLocalPath = null || req.files?.avatar[0]?.path ;
+    let avatarLocalPath;
+    if(req.files && Array.isArray(req.files.avatar) && req.files.avatar.length > 0){
+        avatarLocalPath= req.files.avatar[0].path
+    }
     //const coverImageLocalPath = req.files?.coverImage[0]?.path;
 
     let coverImageLocalPath;
@@ -64,24 +68,24 @@ const registerUser = asyncHandler( async (req, res) => {
         coverImageLocalPath = req.files.coverImage[0].path
     }
     
-    if (!avatarLocalPath) {
-        res.status(400).json(new ApiError({statusCode: 400, message: "Avatar file is required"}))
-        throw new ApiError(400, "Avatar file is required")
-    }
+    // if (!avatarLocalPath) {
+    //     res.status(400).json(new ApiError({statusCode: 400, message: "Avatar file is required"}))
+    //     throw new ApiError(400, "Avatar file is required")
+    // }
 
     const avatar = await uploadOnCloudinary(avatarLocalPath)
     const coverImage = await uploadOnCloudinary(coverImageLocalPath)
 
-    if (!avatar) {
-        res.status(400).json(new ApiError({statusCode: 400, message: "Avatar file is required"}))
-        throw new ApiError(400, "Avatar file is required")
-    }
+    // if (!avatar) {
+    //     res.status(400).json(new ApiError({statusCode: 400, message: "Avatar file is required"}))
+    //     throw new ApiError(400, "Avatar file is required")
+    // }
     
 
     const user = await User.create({
         fullName,
-        avatar: avatar.url,
-        coverImage: coverImage?.url || "",
+        avatar: avatar?.url || "https://res.cloudinary.com/sankalpgupta/image/upload/v1717257388/default.jpg",
+        coverImage: coverImage?.url || "https://res.cloudinary.com/sankalpgupta/image/upload/v1717656597/ouzhm0dbdnnqdoe0nmj7.png",
         email, 
         password,
         username: username.toLowerCase()
