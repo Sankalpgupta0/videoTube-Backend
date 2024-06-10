@@ -8,8 +8,8 @@ services:
     ports:
       - "11746:6379"
     environment:
-      REDIS_PASSWORD: Xz4oAuSAN6RxihebJ5nuMVl3MX6adwFb
-    command: redis-server --requirepass Xz4oAuSAN6RxihebJ5nuMVl3MX6adwFb
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    command: redis-server --requirepass ${REDIS_PASSWORD}
 
   redisinsight:
     image: redislabs/redisinsight:latest
