@@ -1,5 +1,8 @@
 import { createClient } from 'redis';
-const redis = createClient();
+const redis = createClient({
+    host: 'redis-redisjson',
+    port: 6379
+});
 
 const connectRedis = async() => {
     redis.on('error', err => console.log('Redis Client Error', err));
