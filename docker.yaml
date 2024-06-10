@@ -1,0 +1,24 @@
+version: '3.8'
+services:
+  redis:
+    image: redislabs/rejson:latest
+    container_name: redis-redisjson
+    networks:
+      - videotube-redis
+    ports:
+      - "11746:6379"
+    environment:
+      REDIS_PASSWORD: Xz4oAuSAN6RxihebJ5nuMVl3MX6adwFb
+    command: redis-server --requirepass Xz4oAuSAN6RxihebJ5nuMVl3MX6adwFb
+
+  redisinsight:
+    image: redislabs/redisinsight:latest
+    container_name: redisinsight
+    networks:
+      - videotube-redis
+    ports:
+      - "8001:8001"
+
+networks:
+  my-production-network:
+    driver: bridge
