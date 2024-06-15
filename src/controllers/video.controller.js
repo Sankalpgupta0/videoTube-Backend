@@ -62,6 +62,13 @@ const getAllVideos = asyncHandler(async (req, res) => {
 })
 
 const publishAVideo = asyncHandler(async (req, res) => {
+
+    const redisData = await redis.get(`rateLimiting:Video:${req.user._id}`)
+    if(redisData >=1){
+        res.status(429).json({ statusCode: 429, message: "Too many requests, please try after sometime" })
+        throw new ApiError(429, 'Rate limit exceeded on uploading videos')
+    }
+
     const { title, description } = req.body;
     // TODO: get video, upload to cloudinary, create video
 
@@ -92,7 +99,13 @@ const publishAVideo = asyncHandler(async (req, res) => {
         owner: user._id,
     });
     // console.log(video);
+
+    // rate limiting
+    await redis.incr(`rateLimiting:Video:${req.user._id}`);
+    await redis.expire(`rateLimiting:Video:${req.user._id}`, 300)
+
     const appendVideoOnRedis = await redis.json.ARRAPPEND(`videos`, '.', video)
+
     return res
         .status(200)
         .json(
