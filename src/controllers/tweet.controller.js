@@ -3,81 +3,8 @@ import { Tweet } from "../models/tweet.model.js"
 import { User } from "../models/user.model.js"
 import { ApiError } from "../utils/ApiError.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
-import { asyncHandler } from "../utils/asyncHandler.js"
-import { WebSocketServer } from 'ws';
-import url from 'url'
-import { redis } from '../redis/index.js'
+import {asyncHandler} from '../utils/asyncHandler.js'
 
-
-const wss = new WebSocketServer({ port: process.env.SOCKET_PORT });
-
-wss.on('connection', async (ws, req) => {
-    console.log("Client connected");
-
-    const queryParams = url.parse(req.url, true).query;
-    const user_id = queryParams._id;
-
-    try {
-        const user = await User.findById(user_id);
-        if (!user) {
-            throw new ApiError(401, 'Not authenticated');
-        }
-
-        ws.on('error', (err) => {
-            console.error('WebSocket error:', err);
-        });
-
-        ws.on('close', () => {
-            console.log("Connection lost");
-        });
-
-        ws.on('message', async (message) => {
-            try {
-                const redisData = await redis.get(`rateLimiting:chat:${user_id}`);
-                if (redisData >= 5) {
-                    ws.send(JSON.stringify({
-                        owner: true,
-                        content: "Too many requests, please try after sometime"
-                    }));
-                    return;
-                }
-
-                const str = message.toString();
-                const tweet = await Tweet.create({
-                    owner: user_id,
-                    content: str
-                });
-
-                redis.incr(`rateLimiting:chat:${user_id}`, (err, res) => {
-                    if (err) {
-                        console.error('Redis increment error:', err);
-                    } else {
-                        console.log('Redis incremented:', res);
-                    }
-                });
-
-                redis.expire(`rateLimiting:chat:${user_id}`, 60);
-
-                wss.clients.forEach((client) => {
-                    client.send(JSON.stringify({
-                        owner: user_id,
-                        content: str
-                    }));
-                });
-            } catch (error) {
-                console.error('Error handling WebSocket message:', error);
-                ws.send(JSON.stringify({
-                    statusCode: 500,
-                    message: "Internal server error"
-                }));
-            }
-        });
-
-    } catch (error) {
-        console.error('Error connecting WebSocket client:', error);
-        ws.close();
-    }
-});
 const createTweet = asyncHandler(async (req, res) => {
     //TODO: create tweet
     const user = await User.findById(req.user?._id);
