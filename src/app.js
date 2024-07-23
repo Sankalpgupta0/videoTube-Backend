@@ -24,81 +24,81 @@ app.use(cookieParser())
 
 
 
-server.on('upgrade', (request, socket, head) => {
-    wss.handleUpgrade(request, socket, head, (ws) => {
-        wss.emit('connection', ws, request);
-    });
-});
+// server.on('upgrade', (request, socket, head) => {
+//     wss.handleUpgrade(request, socket, head, (ws) => {
+//         wss.emit('connection', ws, request);
+//     });
+// });
 
 
-wss.on('connection', async (ws, req) => {
-    console.log("Client connected");
+// wss.on('connection', async (ws, req) => {
+//     console.log("Client connected");
 
-    const queryParams = url.parse(req.url, true).query;
-    const user_id = queryParams._id;
-    // console.log(user_id);
+//     const queryParams = url.parse(req.url, true).query;
+//     const user_id = queryParams._id;
+//     // console.log(user_id);
 
-    try {
-        const user = await User.findById(user_id);
-        if (!user) {
-            throw new ApiError(401, 'Not authenticated');
-        }
+//     try {
+//         const user = await User.findById(user_id);
+//         if (!user) {
+//             throw new ApiError(401, 'Not authenticated');
+//         }
 
-        ws.on('error', (err) => {
-            console.error('WebSocket error:', err);
-        });
+//         ws.on('error', (err) => {
+//             console.error('WebSocket error:', err);
+//         });
 
-        ws.on('close', () => {
-            console.log("Connection lost");
-        });
+//         ws.on('close', () => {
+//             console.log("Connection lost");
+//         });
 
-        ws.on('message', async (message) => {
-            try {
-                const redisData = await redis.get(`rateLimiting:chat:${user_id}`);
-                if (redisData >= 5) {
-                    ws.send(JSON.stringify({
-                        owner: true,
-                        content: "Too many requests, please try after sometime"
-                    }));
-                    return;
-                }
+//         ws.on('message', async (message) => {
+//             try {
+//                 const redisData = await redis.get(`rateLimiting:chat:${user_id}`);
+//                 if (redisData >= 5) {
+//                     ws.send(JSON.stringify({
+//                         owner: true,
+//                         content: "Too many requests, please try after sometime"
+//                     }));
+//                     return;
+//                 }
 
-                const str = message.toString();
-                const tweet = await Tweet.create({
-                    owner: user_id,
-                    content: str
-                });
+//                 const str = message.toString();
+//                 const tweet = await Tweet.create({
+//                     owner: user_id,
+//                     content: str
+//                 });
 
-                redis.incr(`rateLimiting:chat:${user_id}`, (err, res) => {
-                    if (err) {
-                        console.error('Redis increment error:', err);
-                    } else {
-                        console.log('Redis incremented:', res);
-                    }
-                });
+//                 redis.incr(`rateLimiting:chat:${user_id}`, (err, res) => {
+//                     if (err) {
+//                         console.error('Redis increment error:', err);
+//                     } else {
+//                         console.log('Redis incremented:', res);
+//                     }
+//                 });
 
-                redis.expire(`rateLimiting:chat:${user_id}`, 60);
+//                 redis.expire(`rateLimiting:chat:${user_id}`, 60);
 
-                wss.clients.forEach((client) => {
-                    client.send(JSON.stringify({
-                        owner: user_id,
-                        content: str
-                    }));
-                });
-            } catch (error) {
-                console.error('Error handling WebSocket message:', error);
-                ws.send(JSON.stringify({
-                    statusCode: 500,
-                    message: "Internal server error"
-                }));
-            }
-        });
+//                 wss.clients.forEach((client) => {
+//                     client.send(JSON.stringify({
+//                         owner: user_id,
+//                         content: str
+//                     }));
+//                 });
+//             } catch (error) {
+//                 console.error('Error handling WebSocket message:', error);
+//                 ws.send(JSON.stringify({
+//                     statusCode: 500,
+//                     message: "Internal server error"
+//                 }));
+//             }
+//         });
 
-    } catch (error) {
-        console.error('Error connecting WebSocket client:', error);
-        ws.close();
-    }
-});
+//     } catch (error) {
+//         console.error('Error connecting WebSocket client:', error);
+//         ws.close();
+//     }
+// });
 
 //routes import
 import userRouter from './routes/user.routes.js'
@@ -125,4 +125,4 @@ app.use("/api/dashboard", dashboardRouter)
 
 // http://localhost:8000/api/v1/users/register
 
-export { server }
+export { app }
