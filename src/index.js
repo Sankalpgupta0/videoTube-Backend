@@ -7,8 +7,8 @@ dotenv.config({
     path: './.env'
 })
 
-connectRedis()
-.then(() => {
+// connectRedis()
+// .then(() => {
     connectDB()
     .then(() => {
         app.listen(process.env.PORT || 8000, () => {
@@ -18,4 +18,4 @@ connectRedis()
     .catch((err) => {
         console.log("MONGO db connection failed !!! ", err);
     })
-})
+// })
