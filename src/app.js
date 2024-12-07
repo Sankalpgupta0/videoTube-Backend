@@ -113,6 +113,10 @@ import dashboardRouter from "./routes/dashboard.routes.js"
 
 //routes declaration
 app.get("/",(req,res) => res.send("server is running"))
+app.post("/log", (req, res) => {
+    console.log(req.body);
+    res.json("routes working from app")
+})
 app.use("/api/healthcheck", healthcheckRouter)
 app.use("/api/users", userRouter)
 app.use("/api/tweets", tweetRouter)

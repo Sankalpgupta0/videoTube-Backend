@@ -156,7 +156,7 @@ const loginUser = asyncHandler(async (req, res, next) => {
     }
 
     // set data on redis
-    const redisResult = await redis.json.set(`user:${loggedInUser._id}`, '$', loggedInUser)
+    // const redisResult = await redis.json.set(`user:${loggedInUser._id}`, '$', loggedInUser)
 
     return res
         .status(200)

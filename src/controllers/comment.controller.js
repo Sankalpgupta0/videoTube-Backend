@@ -4,7 +4,7 @@ import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
 import { Video } from "../models/video.model.js"
-import { redis } from "../redis/index.js"
+// import { redis } from "../redis/index.js"
 
 const getVideoComments = asyncHandler(async (req, res) => {
     //TODO: get all comments for a video
@@ -38,12 +38,12 @@ const getVideoComments = asyncHandler(async (req, res) => {
 
 const addComment = asyncHandler(async (req, res) => {
 
-    const redisData = await redis.get(`rateLimiting:comment:${req.user._id}`)
+    // const redisData = await redis.get(`rateLimiting:comment:${req.user._id}`)
     // console.log(redisData);
-    if(redisData >=3){
-        res.status(429).json({ statusCode: 429, message: "Too many requests, please try after sometime" })
-        throw new ApiError(429, "Too many requests, please try after sometime")
-    }
+    // if(redisData >=3){
+    //     res.status(429).json({ statusCode: 429, message: "Too many requests, please try after sometime" })
+    //     throw new ApiError(429, "Too many requests, please try after sometime")
+    // }
 
 
     // TODO: add a comment to a video
@@ -60,10 +60,10 @@ const addComment = asyncHandler(async (req, res) => {
         owner : req.user?._id
     })
     
-    redis.incr(`rateLimiting:comment:${req.user._id}`, function (err, res) {
-        console.log(res);
-    });
-    redis.expire(`rateLimiting:comment:${req.user._id}`, 60)
+    // redis.incr(`rateLimiting:comment:${req.user._id}`, function (err, res) {
+    //     console.log(res);
+    // });
+    // redis.expire(`rateLimiting:comment:${req.user._id}`, 60)
 
     return res.status(200).json(
         new ApiResponse(200,{comment},'New comment created successfully')

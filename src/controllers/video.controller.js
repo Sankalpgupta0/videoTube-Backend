@@ -5,7 +5,7 @@ import { ApiError } from "../utils/ApiError.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
 import { asyncHandler } from "../utils/asyncHandler.js"
 import { uploadOnCloudinary } from "../utils/cloudinary.js"
-import { redis } from "../redis/index.js"
+// import { redis } from "../redis/index.js"
 
 const getAllVideos = asyncHandler(async (req, res) => {
     const { page = 1, limit = 40, query, sortBy, sortType, userId } = req.query
@@ -14,20 +14,20 @@ const getAllVideos = asyncHandler(async (req, res) => {
     // this is a easier method but not so good method  because it will take more time to load the data if there are many records in db ... a better approach will be using aggrigation pipeline 
     // const videos = await Video.find();
 
-    const redisData = await redis.json.get(`videos`)
-    if (redisData) {
-        return res
-            .status(200)
-            .json(
-                new ApiResponse(
-                    200,
-                    {
-                        videos: redisData
-                    },
-                    "all videos featched successfully"
-                )
-            )
-    }
+    // const redisData = await redis.json.get(`videos`)
+    // if (redisData) {
+    //     return res
+    //         .status(200)
+    //         .json(
+    //             new ApiResponse(
+    //                 200,
+    //                 {
+    //                     videos: redisData
+    //                 },
+    //                 "all videos featched successfully"
+    //             )
+    //         )
+    // }
     const skip = (page - 1) * limit;
     const videos = await Video.aggregate([
         {
@@ -45,8 +45,8 @@ const getAllVideos = asyncHandler(async (req, res) => {
         throw new ApiError(404, 'No videos found')
     }
 
-    const redisResult = await redis.json.set(`videos`, '$', videos)
-    const redisExpire = await redis.expire("videos", 60*30)
+    // const redisResult = await redis.json.set(`videos`, '$', videos)
+    // const redisExpire = await redis.expire("videos", 60*30)
 
     return res
         .status(200)
@@ -63,11 +63,11 @@ const getAllVideos = asyncHandler(async (req, res) => {
 
 const publishAVideo = asyncHandler(async (req, res) => {
 
-    const redisData = await redis.get(`rateLimiting:Video:${req.user._id}`)
-    if(redisData >=1){
-        res.status(429).json({ statusCode: 429, message: "Too many requests, please try after sometime" })
-        throw new ApiError(429, 'Rate limit exceeded on uploading videos')
-    }
+    // const redisData = await redis.get(`rateLimiting:Video:${req.user._id}`)
+    // if(redisData >=1){
+    //     res.status(429).json({ statusCode: 429, message: "Too many requests, please try after sometime" })
+    //     throw new ApiError(429, 'Rate limit exceeded on uploading videos')
+    // }
 
     const { title, description } = req.body;
     // TODO: get video, upload to cloudinary, create video
@@ -100,11 +100,11 @@ const publishAVideo = asyncHandler(async (req, res) => {
     });
     // console.log(video);
 
-    // rate limiting
-    await redis.incr(`rateLimiting:Video:${req.user._id}`);
-    await redis.expire(`rateLimiting:Video:${req.user._id}`, 300)
+    // // rate limiting
+    // await redis.incr(`rateLimiting:Video:${req.user._id}`);
+    // await redis.expire(`rateLimiting:Video:${req.user._id}`, 300)
 
-    const appendVideoOnRedis = await redis.json.ARRAPPEND(`videos`, '.', video)
+    // const appendVideoOnRedis = await redis.json.ARRAPPEND(`videos`, '.', video)
 
     return res
         .status(200)
@@ -174,14 +174,14 @@ const updateVideo = asyncHandler(async (req, res) => {
     }
 
 
-    const allVideos = await redis.json.get(`videos`)
-    for (let i = 0; i < allVideos.length; i++) {
-        if (allVideos[i]._id === videoId) {
-            allVideos[i] = video;
-            await redis.json.set(`videos`, '$', allVideos)
-            break;
-        }
-    }
+    // const allVideos = await redis.json.get(`videos`)
+    // for (let i = 0; i < allVideos.length; i++) {
+    //     if (allVideos[i]._id === videoId) {
+    //         allVideos[i] = video;
+    //         await redis.json.set(`videos`, '$', allVideos)
+    //         break;
+    //     }
+    // }
 
     return res
         .status(200)
@@ -200,14 +200,14 @@ const deleteVideo = asyncHandler(async (req, res) => {
     const { videoId } = req.params
     //TODO: delete video
 
-    const allVideos = await redis.json.get(`videos`)
-    for(let i=0; i<allVideos.length; i++){
-        if(allVideos[i]._id == videoId){
-            allVideos.splice(i,1)
-            await redis.json.set(`videos`, '$', allVideos)
-            break
-        }
-    }
+    // const allVideos = await redis.json.get(`videos`)
+    // for(let i=0; i<allVideos.length; i++){
+    //     if(allVideos[i]._id == videoId){
+    //         allVideos.splice(i,1)
+    //         await redis.json.set(`videos`, '$', allVideos)
+    //         break
+    //     }
+    // }
 
     const video = await Video.findByIdAndDelete(videoId)
     if (!video) {
